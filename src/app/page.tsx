@@ -278,73 +278,79 @@ const ContactBubbles = () => {
 
 // Componente de ondas tipo tambor para el logo con efecto "bum bum"
 const DrumWaves = ({ trigger }: { trigger: boolean }) => {
+  // Detectar si es móvil para reducir la intensidad
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-      {/* Primera onda - BUM */}
-      {Array.from({ length: 3 }, (_, i) => (
+      {/* Primera onda - BUM (optimizada para móviles) */}
+      {Array.from({ length: isMobile ? 2 : 3 }, (_, i) => (
         <motion.div
           key={`first-${i}`}
-          className="absolute border-4 border-purple-400/60 rounded-full"
+          className="absolute border-2 border-purple-400/40 rounded-full"
           style={{
-            width: '150px',
-            height: '150px',
+            width: isMobile ? '100px' : '150px',
+            height: isMobile ? '100px' : '150px',
+            transform: 'translate3d(0, 0, 0)', // Activar GPU
           }}
           initial={{ scale: 0, opacity: 0 }}
           animate={trigger ? {
-            scale: [0, 1.5 + i * 0.3, 2.5 + i * 0.5],
-            opacity: [0.9, 0.6, 0],
-            borderWidth: [4, 2, 0],
+            scale: [0, isMobile ? 1.2 + i * 0.2 : 1.5 + i * 0.3, isMobile ? 1.8 + i * 0.3 : 2.5 + i * 0.5],
+            opacity: [0.6, 0.4, 0],
+            borderWidth: [2, 1, 0],
           } : {}}
           transition={{
-            duration: 0.8,
+            duration: isMobile ? 0.5 : 0.8,
             ease: "easeOut",
             delay: i * 0.05
           }}
         />
       ))}
       
-      {/* Segunda onda - BUM (más fuerte) */}
-      {Array.from({ length: 4 }, (_, i) => (
+      {/* Segunda onda - BUM (más ligera en móviles) */}
+      {Array.from({ length: isMobile ? 2 : 4 }, (_, i) => (
         <motion.div
           key={`second-${i}`}
-          className="absolute border-3 border-pink-400/50 rounded-full"
+          className="absolute border-2 border-pink-400/30 rounded-full"
           style={{
-            width: '180px',
-            height: '180px',
+            width: isMobile ? '120px' : '180px',
+            height: isMobile ? '120px' : '180px',
+            transform: 'translate3d(0, 0, 0)', // Activar GPU
           }}
           initial={{ scale: 0, opacity: 0 }}
           animate={trigger ? {
-            scale: [0, 2 + i * 0.4, 4 + i * 0.6],
-            opacity: [0.8, 0.5, 0],
-            borderWidth: [3, 1, 0],
+            scale: [0, isMobile ? 1.4 + i * 0.2 : 2 + i * 0.4, isMobile ? 2.2 + i * 0.3 : 4 + i * 0.6],
+            opacity: [0.5, 0.3, 0],
+            borderWidth: [2, 0.5, 0],
           } : {}}
           transition={{
-            duration: 1.2,
+            duration: isMobile ? 0.8 : 1.2,
             ease: "easeOut",
-            delay: 0.3 + i * 0.08
+            delay: 0.2 + i * 0.06
           }}
         />
       ))}
       
-      {/* Ondas de impacto adicionales */}
-      {Array.from({ length: 2 }, (_, i) => (
+      {/* Ondas de impacto simplificadas para móviles */}
+      {!isMobile && Array.from({ length: 2 }, (_, i) => (
         <motion.div
           key={`impact-${i}`}
-          className="absolute border-2 border-white/40 rounded-full"
+          className="absolute border-1 border-white/30 rounded-full"
           style={{
             width: '120px',
             height: '120px',
+            transform: 'translate3d(0, 0, 0)',
           }}
           initial={{ scale: 0, opacity: 0 }}
           animate={trigger ? {
-            scale: [0, 3 + i, 5 + i * 1.5],
-            opacity: [0.6, 0.3, 0],
-            borderWidth: [2, 0.5, 0],
+            scale: [0, 2.5 + i, 4 + i],
+            opacity: [0.4, 0.2, 0],
+            borderWidth: [1, 0.5, 0],
           } : {}}
           transition={{
-            duration: 1.5,
+            duration: 1.2,
             ease: "easeOut", 
-            delay: 0.6 + i * 0.2
+            delay: 0.4 + i * 0.15
           }}
         />
       ))}
@@ -373,11 +379,15 @@ export default function Home() {
     setTimeout(() => setLogoBumBum(false), 1000);
   };
 
-  // Efecto de rebote automático cada 3 segundos
+  // Efecto de rebote automático - menos frecuente en móviles
   useEffect(() => {
+    // Detectar móvil y ajustar frecuencia
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    const intervalTime = isMobile ? 5000 : 3000; // 5s en móvil, 3s en desktop
+    
     const interval = setInterval(() => {
       triggerDrumWaves();
-    }, 3000);
+    }, intervalTime);
 
     return () => clearInterval(interval);
   }, []);
@@ -545,32 +555,47 @@ export default function Home() {
               <motion.div
                 animate={logoBumBum ? {
                   rotate: 360,
-                  scale: [1, 1.3, 0.9, 1.2, 1],
+                  scale: typeof window !== 'undefined' && window.innerWidth < 768 ? 
+                    [1, 1.15, 0.95, 1.1, 1] : // Móvil: animación más suave
+                    [1, 1.3, 0.9, 1.2, 1],   // Desktop: animación completa
                 } : { 
                   rotate: 360 
                 }}
                 transition={logoBumBum ? {
                   rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-                  scale: { duration: 0.6, ease: "easeOut" }
+                  scale: { 
+                    duration: typeof window !== 'undefined' && window.innerWidth < 768 ? 0.4 : 0.6, 
+                    ease: "easeOut" 
+                  }
                 } : { 
                   duration: 20, repeat: Infinity, ease: "linear" 
                 }}
                 className="relative"
+                style={{ transform: 'translate3d(0, 0, 0)' }} // GPU acceleration
               >
                 <motion.div
                   animate={logoBumBum ? {
-                    filter: [
-                      "brightness(1) saturate(1)",
-                      "brightness(1.4) saturate(1.3)",
-                      "brightness(1.1) saturate(1.1)",
-                      "brightness(1.3) saturate(1.2)",
-                      "brightness(1) saturate(1)"
-                    ]
+                    filter: typeof window !== 'undefined' && window.innerWidth < 768 ? 
+                      [ // Móvil: efectos más ligeros
+                        "brightness(1) saturate(1)",
+                        "brightness(1.2) saturate(1.1)",
+                        "brightness(1.05) saturate(1.05)",
+                        "brightness(1.15) saturate(1.08)",
+                        "brightness(1) saturate(1)"
+                      ] : 
+                      [ // Desktop: efectos completos
+                        "brightness(1) saturate(1)",
+                        "brightness(1.4) saturate(1.3)",
+                        "brightness(1.1) saturate(1.1)",
+                        "brightness(1.3) saturate(1.2)",
+                        "brightness(1) saturate(1)"
+                      ]
                   } : {}}
                   transition={logoBumBum ? {
-                    duration: 0.6,
+                    duration: typeof window !== 'undefined' && window.innerWidth < 768 ? 0.4 : 0.6,
                     ease: "easeOut"
                   } : {}}
+                  style={{ transform: 'translate3d(0, 0, 0)' }} // GPU acceleration
                 >
                   <Image
                     src="/logo.jpeg"
