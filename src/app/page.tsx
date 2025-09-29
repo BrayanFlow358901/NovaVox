@@ -1,13 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Music, Users, Heart, Camera, Play, ImageIcon, Phone, Mail, MapPin, Instagram, Facebook, Youtube, Star } from "lucide-react";
+import { Music, Users, Heart, Camera, Play, ImageIcon, Phone, Mail, MapPin, Instagram, Facebook, Youtube, Star, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import Image from "next/image";
 
-// Componente de estrellas animadas
-const AnimatedStars = () => {
+// Componente de estrellas animadas - Memoizado para optimización
+const AnimatedStars = memo(() => {
   const [stars, setStars] = useState<Array<{id: number, x: number, y: number, delay: number}>>([]);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const AnimatedStars = () => {
     };
 
     generateStars();
-    const interval = setInterval(generateStars, 8000);
+    const interval = setInterval(generateStars, 12000); // Aumentamos el intervalo
     return () => clearInterval(interval);
   }, []);
 
@@ -51,7 +51,10 @@ const AnimatedStars = () => {
       ))}
     </div>
   );
-};
+});
+
+// Agregar displayName
+AnimatedStars.displayName = 'AnimatedStars';
 
 // Componente de notas musicales flotantes
 const FloatingNotes = () => {
@@ -276,8 +279,8 @@ const ContactBubbles = () => {
   );
 };
 
-// Componente de ondas tipo tambor para el logo con efecto "bum bum"
-const DrumWaves = ({ trigger }: { trigger: boolean }) => {
+// Componente de ondas tipo tambor para el logo con efecto "bum bum" - Memoizado
+const DrumWaves = memo(({ trigger }: { trigger: boolean }) => {
   // Detectar si es móvil para reducir la intensidad
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
@@ -356,11 +359,253 @@ const DrumWaves = ({ trigger }: { trigger: boolean }) => {
       ))}
     </div>
   );
-};
+});
+
+// Agregar displayName para el componente memoizado
+DrumWaves.displayName = 'DrumWaves';
+
+// Componente Modal independiente y memoizado para evitar re-renders
+const ContractModal = memo(({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  if (!isOpen) return null;
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Aquí se puede agregar la lógica de envío del formulario
+    console.log('Formulario enviado');
+    onClose();
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  return (
+    <div 
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm"
+      onClick={handleBackdropClick}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.9, y: 20 }}
+        className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl border border-purple-500/20 max-w-md w-full mx-4 max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex justify-between items-center mb-6">
+          <h3 className="text-2xl font-bold text-white">Contratar Nova Vox</h3>
+          <button
+            onClick={onClose}
+            className="text-gray-400 hover:text-white transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-gray-300 text-sm font-medium mb-2">Nombre *</label>
+            <input
+              type="text"
+              placeholder="Tu nombre completo"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-gray-300 text-sm font-medium mb-2">Correo Electrónico *</label>
+            <input
+              type="email"
+              placeholder="tu@email.com"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-gray-300 text-sm font-medium mb-2">Número de Teléfono *</label>
+            <input
+              type="tel"
+              placeholder="Ej: +57 300 123 4567"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-gray-300 text-sm font-medium mb-2">Asunto *</label>
+            <input
+              type="text"
+              placeholder="Tipo de evento o colaboración"
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
+              required
+            />
+          </div>
+          
+          <div>
+            <label className="block text-gray-300 text-sm font-medium mb-2">Mensaje *</label>
+            <textarea
+              rows={4}
+              placeholder="Cuéntanos los detalles del evento: fecha, lugar, duración, tipo de presentación, etc."
+              className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors resize-none"
+              required
+            ></textarea>
+          </div>
+          
+          <div className="flex gap-4">
+            <Button 
+              type="submit"
+              className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-lg font-semibold text-lg"
+            >
+              Enviar Solicitud
+            </Button>
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              className="px-6 border-gray-600 text-gray-300 hover:bg-gray-700"
+            >
+              Cancelar
+            </Button>
+          </div>
+        </form>
+      </motion.div>
+    </div>
+  );
+});
+
+// Agregar displayName para el componente memoizado
+ContractModal.displayName = 'ContractModal';
+
+// Tipo para el contenido del modal de galería
+interface GalleryModalContent {
+  type: 'image' | 'video';
+  src: string;
+  alt: string;
+  title: string;
+}
+
+// Props del modal de galería
+interface GalleryModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  content: GalleryModalContent | null;
+}
+
+// Componente Modal de Galería - Memoizado para optimización
+const GalleryModal = memo<GalleryModalProps>(({ isOpen, onClose, content }) => {
+  // Manejar tecla ESC para cerrar
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+    // Prevenir scroll del body cuando el modal está abierto
+    document.body.style.overflow = 'hidden';
+
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen, onClose]);
+
+  const handleBackdropClick = useCallback((e: React.MouseEvent) => {
+    // Solo cerrar si se hace click en el backdrop, no en el contenido
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  }, [onClose]);
+
+  if (!isOpen || !content) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4 cursor-pointer"
+      onClick={handleBackdropClick}
+    >
+      <motion.div
+        initial={{ opacity: 0, scale: 0.8 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.8 }}
+        transition={{ duration: 0.3 }}
+        className="relative max-w-6xl max-h-[95vh] w-full flex flex-col cursor-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Botón de cerrar mejorado */}
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-2xl font-bold text-white">{content.title}</h3>
+          <div className="flex gap-2">
+            <button
+              onClick={onClose}
+              className="bg-black/50 hover:bg-red-600/80 backdrop-blur-sm rounded-full p-3 text-white transition-all duration-200 hover:scale-110 border border-white/20 hover:border-red-400"
+              title="Cerrar (ESC)"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+        </div>
+
+        {/* Contenido del modal */}
+        <div className="flex-1 flex items-center justify-center bg-black/20 rounded-xl backdrop-blur-sm border border-white/10">
+          {content.type === 'image' ? (
+            <div className="relative w-full h-full max-h-[80vh] rounded-xl overflow-hidden flex items-center justify-center">
+              <Image
+                src={content.src}
+                alt={content.alt}
+                width={1200}
+                height={800}
+                className="max-w-full max-h-full object-contain rounded-xl"
+                unoptimized={true}
+              />
+            </div>
+          ) : (
+            <div className="w-full h-full max-h-[80vh] rounded-xl overflow-hidden">
+              <video
+                src={content.src}
+                controls
+                autoPlay
+                className="w-full h-full object-contain rounded-xl"
+              >
+                Tu navegador no soporta el elemento de video.
+              </video>
+            </div>
+          )}
+        </div>
+
+        {/* Instrucciones de navegación */}
+        <div className="text-center mt-4">
+          <p className="text-white/60 text-sm">
+            Presiona <kbd className="bg-white/20 px-2 py-1 rounded text-xs">ESC</kbd> o haz click fuera para cerrar
+          </p>
+        </div>
+      </motion.div>
+    </div>
+  );
+});
+
+// Agregar displayName para el componente memoizado
+GalleryModal.displayName = 'GalleryModal';
 
 export default function Home() {
   const [drumTrigger, setDrumTrigger] = useState(false);
   const [logoBumBum, setLogoBumBum] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [galleryModal, setGalleryModal] = useState<{
+    isOpen: boolean;
+    content: GalleryModalContent | null;
+  }>({
+    isOpen: false,
+    content: null
+  });
   
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -369,28 +614,53 @@ export default function Home() {
     }
   };
 
-  const triggerDrumWaves = () => {
-    // Activar ondas
-    setDrumTrigger(true);
-    setTimeout(() => setDrumTrigger(false), 2000);
-    
-    // Activar efecto bum bum del logo
-    setLogoBumBum(true);
-    setTimeout(() => setLogoBumBum(false), 1000);
-  };
+  const openModal = useCallback(() => {
+    setIsModalOpen(true);
+  }, []);
 
-  // Efecto de rebote automático - menos frecuente en móviles
+  const closeModal = useCallback(() => {
+    setIsModalOpen(false);
+  }, []);
+
+  const openGalleryModal = useCallback((content: GalleryModalContent) => {
+    setGalleryModal({
+      isOpen: true,
+      content: content
+    });
+  }, []);
+
+  const closeGalleryModal = useCallback(() => {
+    setGalleryModal({
+      isOpen: false,
+      content: null
+    });
+  }, []);
+
+  const triggerDrumWaves = useCallback(() => {
+    // Solo activar efectos si el modal no está abierto
+    if (!isModalOpen) {
+      setDrumTrigger(true);
+      setTimeout(() => setDrumTrigger(false), 2000);
+      
+      setLogoBumBum(true);
+      setTimeout(() => setLogoBumBum(false), 1000);
+    }
+  }, [isModalOpen]);
+
+  // Efecto de rebote automático - pausado cuando el modal está abierto
   useEffect(() => {
-    // Detectar móvil y ajustar frecuencia
     const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-    const intervalTime = isMobile ? 5000 : 3000; // 5s en móvil, 3s en desktop
+    const intervalTime = isMobile ? 8000 : 6000; // Aumentamos el tiempo entre animaciones
     
     const interval = setInterval(() => {
-      triggerDrumWaves();
+      // Solo ejecutar si el modal no está abierto
+      if (!isModalOpen) {
+        triggerDrumWaves();
+      }
     }, intervalTime);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isModalOpen, triggerDrumWaves]); // Agregar isModalOpen como dependencia
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 relative overflow-hidden">
@@ -739,7 +1009,7 @@ export default function Home() {
                   <h4 className="text-xl font-semibold text-white ml-4">Talento Unificado</h4>
                 </div>
                 <p className="text-gray-400">
-                  Cinco voces, una sola alma musical que trasciende géneros y emociones.
+                  Tres voces, una sola alma musical que trasciende géneros y emociones.
                 </p>
               </div>
 
@@ -861,102 +1131,161 @@ export default function Home() {
             <h2 className="text-4xl md:text-6xl font-bold mb-6 text-white">
               Nuestra <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Galería</span>
             </h2>
-            <p className="text-gray-400 text-lg max-w-3xl mx-auto">
+            <p className="text-gray-400 text-lg max-w-3xl mx-auto mb-4">
               Momentos capturados, emociones preservadas. Descubre nuestro mundo a través 
               de imágenes y videos.
             </p>
+            
+            {/* Indicador específico para móviles */}
+            <div className="md:hidden bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-400/30 rounded-xl p-4 max-w-md mx-auto mt-6">
+              <div className="flex items-center justify-center gap-2 text-purple-300 mb-2">
+                <Play className="w-5 h-5 fill-current" />
+                <span className="text-sm font-semibold">Para dispositivos móviles</span>
+              </div>
+              <p className="text-xs text-gray-300">
+                👆 Toca las imágenes y videos para verlos en pantalla completa
+              </p>
+            </div>
           </motion.div>
 
           {/* Grid de Galería */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-16">
-            {/* Imagen 1 */}
+            {/* Imagen 1 - Image1.jpg */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.1 }}
               viewport={{ once: true }}
               className="group relative overflow-hidden rounded-xl cursor-pointer hover:shadow-2xl transition-all duration-300"
+              onClick={() => openGalleryModal({
+                type: 'image',
+                src: '/Image1.jpg',
+                alt: 'Nova Vox - Imagen 1',
+                title: 'Nova Vox - Imagen 1'
+              })}
             >
-              <div className="aspect-video bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                <img 
-                  src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=600&fit=crop&crop=faces" 
-                  alt="Banda en concierto" 
+              <div className="aspect-video bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl overflow-hidden">
+                <Image 
+                  src="/Image1.jpg" 
+                  alt="Nova Vox - Imagen 1" 
+                  width={800}
+                  height={600}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 <div className="text-center text-white">
                   <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-lg font-semibold">Concierto en Vivo</p>
+                  <p className="text-lg font-semibold">Nova Vox</p>
+                  <p className="text-sm text-purple-200">Click para ampliar</p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Imagen 2 */}
+            {/* Video 1 - Prueba1.mp4 */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.2 }}
               viewport={{ once: true }}
               className="group relative overflow-hidden rounded-xl cursor-pointer hover:shadow-2xl transition-all duration-300"
+              onClick={() => openGalleryModal({
+                type: 'video',
+                src: '/Prueba1.mp4',
+                alt: 'Nova Vox - Video Musical',
+                title: 'Nova Vox - Video Musical'
+              })}
             >
-              <div className="aspect-video bg-gradient-to-br from-purple-400 to-blue-600 flex items-center justify-center">
-                <img 
-                  src="https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?w=800&h=600&fit=crop&crop=faces" 
-                  alt="Guitarrista en escena" 
-                  className="w-full h-full object-cover"
-                />
+              <div className="aspect-video bg-gradient-to-br from-purple-400 to-blue-600 rounded-xl overflow-hidden">
+                <video 
+                  className="w-full h-full object-cover pointer-events-none"
+                  muted
+                  preload="metadata"
+                >
+                  <source src="/Prueba1.mp4" type="video/mp4" />
+                  Tu navegador no soporta el elemento de video.
+                </video>
               </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              
+              {/* Overlay permanente para móviles con indicador de video */}
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                 <div className="text-center text-white">
-                  <ImageIcon className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-lg font-semibold">Guitarra Solista</p>
+                  <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 mb-3 mx-auto w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Play className="w-8 h-8 text-white fill-white" />
+                  </div>
+                  <p className="text-lg font-semibold">Video Musical</p>
+                  <p className="text-sm text-purple-200 md:hidden">👆 Toca para reproducir</p>
+                  <p className="text-sm text-purple-200 hidden md:block">Click para reproducir</p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Imagen 3 */}
+            {/* Imagen 2 - Image2.jpg */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3 }}
               viewport={{ once: true }}
               className="group relative overflow-hidden rounded-xl cursor-pointer hover:shadow-2xl transition-all duration-300"
+              onClick={() => openGalleryModal({
+                type: 'image',
+                src: '/Image2.jpg',
+                alt: 'Nova Vox - Imagen 2',
+                title: 'Nova Vox - Detrás de Escena'
+              })}
             >
-              <div className="aspect-video bg-gradient-to-br from-teal-400 to-blue-600 flex items-center justify-center">
-                <img 
-                  src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=800&h=600&fit=crop&crop=faces" 
-                  alt="Estudio de grabación" 
+              <div className="aspect-video bg-gradient-to-br from-teal-400 to-blue-600 rounded-xl overflow-hidden">
+                <Image 
+                  src="/Image2.jpg" 
+                  alt="Nova Vox - Imagen 2" 
+                  width={800}
+                  height={600}
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                 <div className="text-center text-white">
                   <Camera className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-lg font-semibold">Sesión de Estudio</p>
+                  <p className="text-lg font-semibold">Detrás de Escena</p>
+                  <p className="text-sm text-teal-200">Click para ampliar</p>
                 </div>
               </div>
             </motion.div>
 
-            {/* Imagen 4 */}
+            {/* Video 2 - Prueba2.mp4 */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.4 }}
               viewport={{ once: true }}
               className="group relative overflow-hidden rounded-xl cursor-pointer hover:shadow-2xl transition-all duration-300"
+              onClick={() => openGalleryModal({
+                type: 'video',
+                src: '/Prueba2.mp4',
+                alt: 'Nova Vox - Actuación en Vivo',
+                title: 'Nova Vox - Actuación en Vivo'
+              })}
             >
-              <div className="aspect-video bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center">
-                <img 
-                  src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=600&fit=crop&crop=faces" 
-                  alt="Baterista en acción" 
-                  className="w-full h-full object-cover"
-                />
+              <div className="aspect-video bg-gradient-to-br from-pink-400 to-purple-600 rounded-xl overflow-hidden">
+                <video 
+                  className="w-full h-full object-cover pointer-events-none"
+                  muted
+                  preload="metadata"
+                >
+                  <source src="/Prueba2.mp4" type="video/mp4" />
+                  Tu navegador no soporta el elemento de video.
+                </video>
               </div>
-              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+              
+              {/* Overlay permanente para móviles con indicador de video */}
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                 <div className="text-center text-white">
-                  <Music className="w-12 h-12 mx-auto mb-2" />
-                  <p className="text-lg font-semibold">Ritmo y Percusión</p>
+                  <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 mb-3 mx-auto w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Music className="w-8 h-8 text-white" />
+                  </div>
+                  <p className="text-lg font-semibold">Actuación en Vivo</p>
+                  <p className="text-sm text-pink-200 md:hidden">👆 Toca para reproducir</p>
+                  <p className="text-sm text-pink-200 hidden md:block">Click para reproducir</p>
                 </div>
               </div>
             </motion.div>
@@ -978,17 +1307,37 @@ export default function Home() {
               </p>
             </div>
             
-            <div className="relative group cursor-pointer">
+            <div 
+              className="relative group cursor-pointer rounded-xl overflow-hidden shadow-2xl hover:shadow-purple-500/25 transition-all duration-500"
+              onClick={() => openGalleryModal({
+                type: 'video',
+                src: '/VideoPrincipal.mp4',
+                alt: 'Nova Vox - Video Principal',
+                title: 'Nova Vox - Video Principal'
+              })}
+            >
               <div className="aspect-video bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl overflow-hidden">
-                <img 
-                  src="https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&h=600&fit=crop&crop=faces" 
-                  alt="Video musical Nova Vox" 
-                  className="w-full h-full object-cover"
-                />
+                <video 
+                  className="w-full h-full object-cover pointer-events-none"
+                  muted
+                  preload="metadata"
+                  poster="/Image1.jpg"
+                >
+                  <source src="/VideoPrincipal.mp4" type="video/mp4" />
+                  Tu navegador no soporta el elemento de video.
+                </video>
               </div>
-              <div className="absolute inset-0 bg-black/50 flex items-center justify-center group-hover:bg-black/40 transition-colors duration-300">
-                <div className="bg-white/20 backdrop-blur-sm rounded-full p-6 group-hover:scale-110 transition-transform duration-300">
-                  <Play className="w-16 h-16 text-white" />
+              
+              {/* Overlay simplificado - solo para hover en desktop */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:block">
+              </div>
+              
+              {/* Información en la parte inferior */}
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/90 to-transparent p-6">
+                <div className="text-white">
+                  <h4 className="text-xl font-bold mb-2">Nova Vox - Video Principal</h4>
+                  <p className="text-gray-300 text-sm md:hidden">👆 Toca para reproducir en pantalla completa</p>
+                  <p className="text-gray-300 text-sm hidden md:block">Click para reproducir en pantalla completa</p>
                 </div>
               </div>
             </div>
@@ -1075,103 +1424,43 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid lg:grid-cols-2 gap-16">
-            {/* Formulario de Contacto */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="bg-gradient-to-br from-gray-800 to-gray-900 p-8 rounded-2xl border border-purple-500/20"
-            >
-              <h3 className="text-2xl font-bold text-white mb-8">Envíanos un Mensaje</h3>
-              
-              <form className="space-y-6">
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Nombre</label>
-                    <input
-                      type="text"
-                      placeholder="Tu nombre"
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-gray-300 text-sm font-medium mb-2">Email</label>
-                    <input
-                      type="email"
-                      placeholder="tu@email.com"
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
-                    />
-                  </div>
-                </div>
-                
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Asunto</label>
-                  <input
-                    type="text"
-                    placeholder="¿En qué podemos ayudarte?"
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-gray-300 text-sm font-medium mb-2">Mensaje</label>
-                  <textarea
-                    rows={5}
-                    placeholder="Cuéntanos más detalles..."
-                    className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 transition-colors resize-none"
-                  ></textarea>
-                </div>
-                
-                <Button className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white py-3 rounded-lg font-semibold text-lg">
-                  Enviar Mensaje
-                </Button>
-              </form>
-            </motion.div>
-
+          <div className="max-w-4xl mx-auto">
             {/* Información de Contacto */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
               className="space-y-8"
             >
-              <h3 className="text-2xl font-bold text-white mb-8">Información de Contacto</h3>
+              <h3 className="text-2xl font-bold text-white mb-8 text-center">Información de Contacto</h3>
               
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4 p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-purple-500/20">
-                  <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full">
+              <div className="grid md:grid-cols-3 gap-6 mb-12">
+                <div className="flex flex-col items-center text-center p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-purple-500/20">
+                  <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4">
                     <Phone className="w-6 h-6 text-white" />
                   </div>
-                  <div>
-                    <h4 className="text-white font-semibold text-lg">Teléfono</h4>
-                    <p className="text-gray-400">+57 310 123 4567</p>
-                    <p className="text-gray-500 text-sm">Llámanos para contrataciones</p>
-                  </div>
+                  <h4 className="text-white font-semibold text-lg mb-2">Teléfono</h4>
+                  <p className="text-gray-400 mb-1">+57 310 123 4567</p>
+                  <p className="text-gray-500 text-sm">Llámanos para contrataciones</p>
                 </div>
 
-                <div className="flex items-center space-x-4 p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-purple-500/20">
-                  <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full">
+                <div className="flex flex-col items-center text-center p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-purple-500/20">
+                  <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4">
                     <Mail className="w-6 h-6 text-white" />
                   </div>
-                  <div>
-                    <h4 className="text-white font-semibold text-lg">Email</h4>
-                    <p className="text-gray-400">info@novavox.music</p>
-                    <p className="text-gray-500 text-sm">Escríbenos tus consultas</p>
-                  </div>
+                  <h4 className="text-white font-semibold text-lg mb-2">Email</h4>
+                  <p className="text-gray-400 mb-1">info@novavox.music</p>
+                  <p className="text-gray-500 text-sm">Escríbenos tus consultas</p>
                 </div>
 
-                <div className="flex items-center space-x-4 p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-purple-500/20">
-                  <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full">
+                <div className="flex flex-col items-center text-center p-6 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-purple-500/20">
+                  <div className="p-3 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full mb-4">
                     <MapPin className="w-6 h-6 text-white" />
                   </div>
-                  <div>
-                    <h4 className="text-white font-semibold text-lg">Ubicación</h4>
-                    <p className="text-gray-400">Antioquia, Rionegro</p>
-                    <p className="text-gray-500 text-sm">Disponibles para eventos</p>
-                  </div>
+                  <h4 className="text-white font-semibold text-lg mb-2">Ubicación</h4>
+                  <p className="text-gray-400 mb-1">Antioquia, Rionegro</p>
+                  <p className="text-gray-500 text-sm">Disponibles para eventos</p>
                 </div>
               </div>
 
@@ -1239,7 +1528,10 @@ export default function Home() {
                 <p className="text-purple-100 mb-6">
                   Contacta con nosotros para eventos privados, conciertos y colaboraciones musicales.
                 </p>
-                <Button className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-8 py-3 rounded-full">
+                <Button 
+                  onClick={openModal}
+                  className="bg-white text-purple-600 hover:bg-gray-100 font-semibold px-8 py-3 rounded-full"
+                >
                   Contratar Ahora
                 </Button>
               </div>
@@ -1275,6 +1567,16 @@ export default function Home() {
           </motion.div>
         </div>
       </footer>
+
+      {/* Modal de Contratación */}
+      <ContractModal isOpen={isModalOpen} onClose={closeModal} />
+      
+      {/* Modal de Galería */}
+      <GalleryModal 
+        isOpen={galleryModal.isOpen} 
+        onClose={closeGalleryModal} 
+        content={galleryModal.content} 
+      />
     </div>
   );
 }
