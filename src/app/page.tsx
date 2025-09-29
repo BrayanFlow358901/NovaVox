@@ -1252,7 +1252,7 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Video 2 - Prueba2.mp4 */}
+            {/* Imagen temporal - Video en construcción */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
@@ -1260,32 +1260,35 @@ export default function Home() {
               viewport={{ once: true }}
               className="group relative overflow-hidden rounded-xl cursor-pointer hover:shadow-2xl transition-all duration-300"
               onClick={() => openGalleryModal({
-                type: 'video',
-                src: '/Prueba2.mp4',
-                alt: 'Nova Vox - Actuación en Vivo',
-                title: 'Nova Vox - Actuación en Vivo'
+                type: 'image',
+                src: '/Image2.jpg',
+                alt: 'Nova Vox - Próximamente',
+                title: 'Nova Vox - Video Próximamente'
               })}
             >
-              <div className="aspect-video bg-gradient-to-br from-pink-400 to-purple-600 rounded-xl overflow-hidden">
-                <video 
-                  className="w-full h-full object-cover pointer-events-none"
-                  muted
-                  preload="metadata"
-                >
-                  <source src="/Prueba2.mp4" type="video/mp4" />
-                  Tu navegador no soporta el elemento de video.
-                </video>
+              <div className="aspect-video bg-gradient-to-br from-pink-400 to-purple-600 rounded-xl overflow-hidden relative">
+                <Image 
+                  src="/Image2.jpg" 
+                  alt="Nova Vox - Próximamente" 
+                  width={800}
+                  height={600}
+                  className="w-full h-full object-cover"
+                />
+                {/* Overlay indicando que es temporal */}
+                <div className="absolute top-4 right-4 bg-purple-600/90 backdrop-blur-sm rounded-full px-3 py-1">
+                  <span className="text-white text-xs font-semibold">Próximamente</span>
+                </div>
               </div>
               
-              {/* Overlay permanente para móviles con indicador de video */}
+              {/* Overlay permanente para móviles con indicador de imagen */}
               <div className="absolute inset-0 bg-black/20 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                 <div className="text-center text-white">
                   <div className="bg-white/20 backdrop-blur-sm rounded-full p-4 mb-3 mx-auto w-16 h-16 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Music className="w-8 h-8 text-white" />
+                    <ImageIcon className="w-8 h-8 text-white" />
                   </div>
-                  <p className="text-lg font-semibold">Actuación en Vivo</p>
-                  <p className="text-sm text-pink-200 md:hidden">👆 Toca para reproducir</p>
-                  <p className="text-sm text-pink-200 hidden md:block">Click para reproducir</p>
+                  <p className="text-lg font-semibold">Video en Construcción</p>
+                  <p className="text-sm text-pink-200 md:hidden">👆 Toca para ver imagen</p>
+                  <p className="text-sm text-pink-200 hidden md:block">Click para ver imagen</p>
                 </div>
               </div>
             </motion.div>
@@ -1311,7 +1314,7 @@ export default function Home() {
               className="relative group cursor-pointer rounded-xl overflow-hidden shadow-2xl hover:shadow-purple-500/25 transition-all duration-500"
               onClick={() => openGalleryModal({
                 type: 'video',
-                src: '/VideoPrincipal.mp4',
+                src: '/Prueba1.mp4',
                 alt: 'Nova Vox - Video Principal',
                 title: 'Nova Vox - Video Principal'
               })}
@@ -1323,7 +1326,7 @@ export default function Home() {
                   preload="metadata"
                   poster="/Image1.jpg"
                 >
-                  <source src="/VideoPrincipal.mp4" type="video/mp4" />
+                  <source src="/Prueba1.mp4" type="video/mp4" />
                   Tu navegador no soporta el elemento de video.
                 </video>
               </div>
